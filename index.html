@@ -11,26 +11,26 @@
         .step { display: none; }
         .step.active { display: block; animation: slideUp 0.5s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+
         .radio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
         .rating-grid { display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; }
         @media (max-width: 640px) { .rating-grid { grid-template-columns: repeat(6, 1fr); } }
-        
-        input[type="radio"]:checked + label, input[type="checkbox"]:checked + label { 
-            background-color: #2563eb; 
-            color: white; 
+
+        input[type="radio"]:checked + label, input[type="checkbox"]:checked + label {
+            background-color: #2563eb;
+            color: white;
             border-color: #2563eb;
             box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
         }
-        
+
         .matrix-row { border-bottom: 1px solid #f3f4f6; padding: 24px 0; }
         .matrix-options { display: flex; justify-content: space-between; gap: 6px; }
         .matrix-label { font-size: 0.6rem; text-align: center; margin-top: 8px; min-height: 2.5em; line-height: 1.2; color: #9ca3af; }
-        
+
         .question-block.has-error label.question-label { color: #dc2626; }
         .question-block.has-error select, .question-block.has-error .radio-container { border-color: #fca5a5; }
         .error-msg { color: #dc2626; font-size: 0.75rem; margin-top: 8px; display: none; font-weight: 600; }
-        
+
         .req-mark { color: #ef4444; margin-left: 4px; font-size: 0.8rem; }
 
         /* 送信中のローディング表示 */
@@ -59,11 +59,11 @@
     </div>
 
     <form id="surveyForm" novalidate>
-        
+
         <!-- Step 1: 鑑賞作品について -->
         <div class="step active" data-step="1" data-label="鑑賞作品について">
             <h2 class="text-xl font-bold mb-8 text-gray-800">ご鑑賞いただいた作品について</h2>
-            
+
             <div class="mb-10 question-block">
                 <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q1. ご覧になった作品を教えてください。<span class="req-mark">＊</span></label>
                 <select name="作品名" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer" required>
@@ -147,7 +147,7 @@
         <!-- Step 2: 来場の背景 (Q7-Q12) -->
         <div class="step" data-step="2" data-label="来場の背景">
             <h2 class="text-xl font-bold mb-8 text-gray-800">本日のご来場について教えてください</h2>
-            
+
             <div class="mb-10 question-block">
                 <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q7. 本日は、どのような手段でこちらの映画館までお越しになりましたか？<span class="req-mark">＊</span></label>
                 <div class="radio-grid">
@@ -229,7 +229,7 @@
         <!-- Step 3: 来場のきっかけ -->
         <div class="step" data-step="3" data-label="来場のきっかけ">
             <h2 class="text-xl font-bold mb-8 text-gray-800">作品を知ったきっかけについて</h2>
-            
+
             <div class="mb-10 question-block">
                 <label class="block text-sm font-bold mb-5 text-gray-700 leading-relaxed question-label">Q13. この作品の情報を最初に知ったのは、次のうちどれですか？<span class="req-mark">＊</span></label>
                 <div class="grid grid-cols-2 gap-4">
@@ -287,7 +287,7 @@
         <!-- Step 4: 劇場体験について -->
         <div class="step" data-step="4" data-label="劇場体験について">
             <h2 class="text-xl font-bold mb-8 text-gray-800">映画館の体験について</h2>
-            
+
             <div class="mb-10 question-block">
                 <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q15. この映画館を家族や友人にどの程度おすすめしたいですか？（0〜10点）<span class="req-mark">＊</span></label>
                 <div class="rating-grid" id="q15-container"></div>
@@ -317,7 +317,7 @@
                 <div id="matrix-container" class="bg-gray-50/30 rounded-3xl border border-gray-100 p-6 shadow-sm"></div>
                 <p class="error-msg">すべての項目にチェックを入れてください</p>
             </div>
-            
+
             <div class="mb-10 question-block">
                 <label class="block text-sm font-bold mb-5 text-gray-700 question-label">Q18. 本日、映画館でフードやドリンクを購入しましたか？<span class="req-mark">＊</span></label>
                 <div class="flex gap-12">
@@ -409,11 +409,11 @@
             <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100 shadow-sm mb-10 text-center">
                 <p class="font-extrabold text-blue-700 mb-4 text-xl tracking-tight">抽選で映画鑑賞券をプレゼント！</p>
                 <p class="text-sm text-gray-500 mb-8 leading-relaxed">アンケートにご協力いただいた感謝として、<br>抽選で素敵なプレゼントをご用意しています。応募されますか？</p>
-                
+
                 <div class="flex gap-4 mb-8">
                     <input type="radio" name="プレゼント応募" id="p_yes" value="希望する" class="hidden" onchange="toggleEmail(true)">
                     <label for="p_yes" class="flex-1 bg-white border-2 border-blue-600 text-blue-600 px-6 py-4 rounded-2xl font-bold text-center cursor-pointer hover:bg-blue-600 hover:text-white transition-all shadow-sm">応募する</label>
-                    
+
                     <input type="radio" name="プレゼント応募" id="p_no" value="希望しない" class="hidden" onchange="toggleEmail(false)">
                     <label for="p_no" class="flex-1 bg-gray-100 text-gray-400 px-6 py-4 rounded-2xl font-bold text-center cursor-pointer hover:bg-gray-200 transition-all text-sm">しない</label>
                 </div>
@@ -422,7 +422,7 @@
                     <div class="mb-6 text-[10px] leading-relaxed text-gray-600 bg-gray-50 p-5 rounded-xl border border-gray-200 overflow-y-auto max-h-64 shadow-inner">
                         <p class="font-bold mb-3 text-gray-800 border-b pb-1 text-sm">【個人情報の取り扱いについて】</p>
                         <p class="mb-3 leading-relaxed">本アンケートは、主催者「映画館に行こう実行委員会」より委託された株式会社ガイエ（以下ガイエ）が運営しています。 ご入力いただいたメールアドレスおよびご回答内容は、ガイエが下記の目的のために利用し、当社のプライバシーポリシーに基づき責任をもって厳重に管理いたします。</p>
-                        
+
                         <p class="font-bold mt-4 text-gray-800">１．利用目的</p>
                         <ul class="list-disc ml-5 space-y-2 mt-2">
                             <li><strong>映画に関する情報提供</strong>：ガイエからの、新作映画情報、関連ニュース、お得なキャンペーン等のご案内メールの配信、および映画に関連する新しいサービスのご案内をお送りする場合があります。</li>
@@ -479,7 +479,7 @@
 
 <script>
     // --- 重要：ここにデプロイしたGoogle Apps ScriptのURLを貼り付けてください ---
-    const scriptUrl = 'YOUR_GAS_URL_HERE'; 
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxYmy99BvIQWAG8QuWO3vE2blKVkHn-SG_Gk4ex-TfZ5xGH6kohulJFXs5J-bIjiS_ngw/exec';
 
     let currentStep = 1;
     const totalSteps = 6;
@@ -488,7 +488,7 @@
         initRatings('q5-container', '点数_作品の推奨度');
         initRatings('q15-container', '点数_劇場の推奨度');
         initMatrix();
-        
+
         // フォームの送信処理
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -571,7 +571,7 @@
             const inputs = block.querySelectorAll('input, select');
             if (inputs.length === 0) return;
             let answered = false;
-            
+
             if (inputs[0].name === '音声形式') {
                 answered = true; // 任意項目
             } else if (inputs[0].tagName === 'SELECT') {
@@ -632,7 +632,7 @@
 
     async function handleSubmit() {
         if (!validateStep(currentStep)) return;
-        
+
         const submitBtn = document.getElementById('submitBtn');
         const spinner = document.getElementById('spinner');
         submitBtn.disabled = true;
