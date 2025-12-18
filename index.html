@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>映画鑑賞アンケート</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background-color: #ffffff; color: #1f2937; }
+        .step { display: none; }
+        .step.active { display: block; animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .radio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .rating-grid { display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; }
+        @media (max-width: 640px) { .rating-grid { grid-template-columns: repeat(6, 1fr); } }
+
+        /* 選択済み状態のスタイル */
+        input[type="radio"]:checked + label, input[type="checkbox"]:checked + label {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        }
+
+        .matrix-row { border-bottom: 1px solid #f3f4f6; padding: 24px 0; }
+        .matrix-options { display: flex; justify-content: space-between; gap: 6px; }
+        .matrix-label { font-size: 0.6rem; text-align: center; margin-top: 8px; min-height: 2.5em; line-height: 1.2; color: #9ca3af; }
+
+        /* エラー表示の緩和：枠線のみ赤くし、シェイクは廃止 */
+        .question-block.has-error label.question-label { color: #dc2626; }
+        .question-block.has-error select, .question-block.has-error .radio-container { border-color: #fca5a5; }
+
+        .error-msg { color: #dc2626; font-size: 0.75rem; margin-top: 8px; display: none; font-weight: 600; }
+
+        .req-mark { color: #ef4444; margin-left: 4px; font-size: 0.8rem; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-2xl mx-auto px-6 py-12">
+    <!-- Header Area -->
+    <div id="headerArea" class="mb-12">
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 mb-1">映画の感想をお聞かせください</h1>
+                <p id="categoryLabel" class="text-xs font-bold text-blue-600 uppercase tracking-widest">鑑賞作品について</p>
+            </div>
+            <div class="text-right">
+                <span id="stepIndicator" class="text-lg font-mono font-bold text-gray-300">01 <span class="text-sm font-normal text-gray-200">/ 06</span></span>
+            </div>
+        </div>
+        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+            <div id="progressBar" class="bg-blue-600 h-full transition-all duration-700 ease-in-out" style="width: 16.6%"></div>
+        </div>
+    </div>
+
+    <form id="surveyForm" onsubmit="return handleSubmit(event)" novalidate>
+
+        <!-- Step 1: 鑑賞作品について (Q1-Q6) -->
+        <div class="step active" data-step="1" data-label="鑑賞作品について">
+            <h2 class="text-xl font-bold mb-8 text-gray-800">ご鑑賞いただいた作品について</h2>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q1. ご覧になった作品を教えてください。<span class="req-mark">＊</span></label>
+                <select name="q1" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer" required>
+                    <option value="">作品を選択してください</option>
+                    <option value="movie_a">上映作品 A</option>
+                    <option value="movie_b">上映作品 B</option>
+                    <option value="other">その他（自由記述）</option>
+                </select>
+                <p class="error-msg">この項目は回答必須です</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q2. ご覧になった上映フォーマットをお聞かせください。<span class="req-mark">＊</span></label>
+                <div class="radio-grid mb-5">
+                    <input type="radio" name="q2_format" id="q2f_1" value="通常上映" class="hidden" required>
+                    <label for="q2f_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer hover:border-blue-300 text-sm transition-all font-semibold bg-white">通常上映</label>
+                    <input type="radio" name="q2_format" id="q2f_2" value="IMAX/Dolby/TCX" class="hidden">
+                    <label for="q2f_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer hover:border-blue-300 text-sm transition-all font-semibold bg-white">IMAX/Dolby/TCX</label>
+                    <input type="radio" name="q2_format" id="q2f_3" value="4DX/MX4D" class="hidden">
+                    <label for="q2f_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer hover:border-blue-300 text-sm transition-all font-semibold bg-white">4DX/MX4D</label>
+                    <input type="radio" name="q2_format" id="q2f_4" value="ScreenX" class="hidden">
+                    <label for="q2f_4" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer hover:border-blue-300 text-sm transition-all font-semibold bg-white">ScreenX</label>
+                    <input type="radio" name="q2_format" id="q2f_5" value="その他" class="hidden">
+                    <label for="q2f_5" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer hover:border-blue-300 text-sm transition-all font-semibold bg-white">その他</label>
+                </div>
+                <div class="p-5 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                    <p class="text-[10px] text-blue-600 font-extrabold mb-4 tracking-tighter">（洋画をご鑑賞の場合）</p>
+                    <div class="flex gap-10">
+                        <label class="flex items-center group cursor-pointer">
+                            <input type="radio" name="q2_voice" value="字幕" class="w-5 h-5 border-gray-300 text-blue-600 focus:ring-blue-500" onclick="toggleRadio(this)"><span class="ml-3 text-sm font-medium text-gray-600 group-hover:text-blue-600">字幕</span>
+                        </label>
+                        <label class="flex items-center group cursor-pointer">
+                            <input type="radio" name="q2_voice" value="吹替" class="w-5 h-5 border-gray-300 text-blue-600 focus:ring-blue-500" onclick="toggleRadio(this)"><span class="ml-3 text-sm font-medium text-gray-600 group-hover:text-blue-600">吹替</span>
+                        </label>
+                    </div>
+                </div>
+                <p class="error-msg">フォーマットを選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q3. この作品をご覧になるのは、何度目ですか？<span class="req-mark">＊</span></label>
+                <div class="radio-grid">
+                    <input type="radio" name="q3" id="q3_1" value="初めて" class="hidden" required><label for="q3_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold transition-all bg-white">初めて</label>
+                    <input type="radio" name="q3" id="q3_2" value="2回目" class="hidden"><label for="q3_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold transition-all bg-white">2回目</label>
+                    <input type="radio" name="q3" id="q3_3" value="3回目" class="hidden"><label for="q3_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold transition-all bg-white">3回目</label>
+                    <input type="radio" name="q3" id="q3_4" value="4回目" class="hidden"><label for="q3_4" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold transition-all bg-white">4回目</label>
+                    <input type="radio" name="q3" id="q3_5" value="5回目以上" class="hidden"><label for="q3_5" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold transition-all bg-white">5回目以上</label>
+                </div>
+                <p class="error-msg">回数を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q4. あなたは、この作品を『もう一度、映画館で』鑑賞したいと思いますか？<span class="req-mark">＊</span></label>
+                <select name="q4" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none focus:border-blue-500 transition-all appearance-none" required>
+                    <option value="">意向を選択してください</option>
+                    <option value="ぜひもう一度映画館で観たい">ぜひもう一度映画館で観たい</option>
+                    <option value="別フォーマットでもう一度観たい">別フォーマット（IMAXや4DXなど）でもう一度観たい</option>
+                    <option value="機会があれば観るかもしれない">機会があれば観るかもしれない</option>
+                    <option value="配信やレンタルで観れば十分">映画館では観ない（配信やレンタルで観れば十分）</option>
+                    <option value="もう一度観ることはない">もう一度観ることはない</option>
+                </select>
+                <p class="error-msg">意向を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q5. 作品を友人や同僚に勧める可能性はどのくらいありますか？（0〜10点）<span class="req-mark">＊</span></label>
+                <div class="rating-grid" id="q5-container"></div>
+                <div class="flex justify-between text-[10px] text-gray-400 mt-3 font-bold uppercase tracking-wider">
+                    <span>0: 全く勧めない</span>
+                    <span>10: 強く勧める</span>
+                </div>
+                <p class="error-msg">点数を選択してください</p>
+            </div>
+
+            <div class="mb-10">
+                <label class="block text-sm font-bold mb-3 text-gray-700 leading-relaxed">Q6. 作品の中で、特に印象に残ったシーンやセリフ、気に入ったポイントがあれば具体的に教えてください。（任意）</label>
+                <textarea name="q6" rows="4" class="w-full p-5 border border-gray-200 rounded-2xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none transition-all bg-gray-50/30" placeholder="例：〇〇が××するシーンの表情が印象的だった / 〇〇というセリフが心に刺さった など"></textarea>
+            </div>
+        </div>
+
+        <!-- Step 2: 来場の背景 (Q7-Q12) -->
+        <div class="step" data-step="2" data-label="来場の背景">
+            <h2 class="text-xl font-bold mb-8 text-gray-800">本日のご来場について教えてください</h2>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q7. 本日は、どのような手段でこちらの映画館までお越しになりましたか？<span class="req-mark">＊</span></label>
+                <div class="radio-grid">
+                    <input type="radio" name="q7" id="q7_1" value="公共交通" class="hidden" required><label for="q7_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">公共交通機関</label>
+                    <input type="radio" name="q7" id="q7_2" value="車" class="hidden"><label for="q7_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">自家用車</label>
+                    <input type="radio" name="q7" id="q7_3" value="自転車" class="hidden"><label for="q7_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">自転車</label>
+                    <input type="radio" name="q7" id="q7_4" value="徒歩" class="hidden"><label for="q7_4" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">徒歩</label>
+                    <input type="radio" name="q7" id="q7_5" value="タクシー" class="hidden"><label for="q7_5" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">タクシー</label>
+                    <input type="radio" name="q7" id="q7_6" value="その他" class="hidden"><label for="q7_6" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">その他</label>
+                </div>
+                <p class="error-msg">手段を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q8. 本日は、どちらからお越しになりましたか？<span class="req-mark">＊</span></label>
+                <div class="radio-grid">
+                    <input type="radio" name="q8" id="q8_1" value="自宅" class="hidden" required><label for="q8_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">自宅から</label>
+                    <input type="radio" name="q8" id="q8_2" value="職場・学校" class="hidden"><label for="q8_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">職場・学校から</label>
+                    <input type="radio" name="q8" id="q8_3" value="外出先" class="hidden"><label for="q8_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">外出先から</label>
+                    <input type="radio" name="q8" id="q8_4" value="その他" class="hidden"><label for="q8_4" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">その他</label>
+                </div>
+                <p class="error-msg">出発地を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q9. 映画館まで、片道どのくらいの時間がかかりましたか？<span class="req-mark">＊</span></label>
+                <select name="q9" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none" required>
+                    <option value="">所要時間を選択</option>
+                    <option value="15分未満">15分未満</option>
+                    <option value="15分〜30分未満">15分〜30分未満</option>
+                    <option value="30分〜1時間未満">30分〜1時間未満</option>
+                    <option value="1時間〜1時間半未満">1時間〜1時間半未満</option>
+                    <option value="1時間半以上">1時間半以上</option>
+                </select>
+                <p class="error-msg">所要時間を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q10. 本日は、どなたとご覧になりましたか？<span class="req-mark">＊</span></label>
+                <select name="q10" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30" required>
+                    <option value="">同伴者を選択</option>
+                    <option value="1人で">1人で</option>
+                    <option value="友人・知人と2人で">友人・知人と2人で</option>
+                    <option value="恋人・パートナーと2人で">恋人・パートナーと2人で</option>
+                    <option value="家族と2人で">家族と2人で</option>
+                    <option value="友人・知人と3人以上で">友人・知人と3人以上で</option>
+                    <option value="家族と3人以上で">家族と3人以上で</option>
+                    <option value="その他">その他</option>
+                </select>
+                <p class="error-msg">同伴者を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q11. 今回の映画を観に行くことは、いつ頃決めましたか？<span class="req-mark">＊</span></label>
+                <div class="radio-grid">
+                    <input type="radio" name="q11" id="q11_1" value="当日" class="hidden" required><label for="q11_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">当日</label>
+                    <input type="radio" name="q11" id="q11_2" value="2〜3日前" class="hidden"><label for="q11_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">2〜3日前</label>
+                    <input type="radio" name="q11" id="q11_3" value="1週間前" class="hidden"><label for="q11_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">1週間前</label>
+                    <input type="radio" name="q11" id="q11_4" value="それ以上前" class="hidden"><label for="q11_4" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">それ以上前</label>
+                </div>
+                <p class="error-msg">時期を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q12. 今回の映画のチケットはどのように購入されましたか？<span class="req-mark">＊</span></label>
+                <select name="q12" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30" required>
+                    <option value="">購入方法を選択</option>
+                    <option value="当日窓口で">当日窓口で</option>
+                    <option value="劇場の公式サイトで">劇場の公式サイトで</option>
+                    <option value="前売り券（ムビチケ）を購入">前売り券（ムビチケ）を購入</option>
+                    <option value="映画GIFTを購入">映画GIFTを購入</option>
+                    <option value="映画サイトで">映画サイトで</option>
+                    <option value="その他">その他</option>
+                </select>
+                <p class="error-msg">購入方法を選択してください</p>
+            </div>
+        </div>
+
+        <!-- Step 3: 来場のきっかけ (Q13-Q14) -->
+        <div class="step" data-step="3" data-label="来場のきっかけ">
+            <h2 class="text-xl font-bold mb-8 text-gray-800">作品を知ったきっかけについて</h2>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-5 text-gray-700 leading-relaxed question-label">Q13. この作品の情報を最初に知ったのは、次のうちどれですか？<span class="req-mark">＊</span></label>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="劇場予告" class="w-5 h-5 text-blue-600" required><span class="ml-3 text-sm font-medium text-gray-700">劇場での予告編</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="TVCM" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">テレビCM</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="YouTube" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">YouTube</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="X" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">X (旧Twitter)</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="Instagram" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">Instagram</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="TikTok" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">TikTok</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="映画情報サイト" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-xs leading-tight text-gray-700">映画情報サイト/アプリ</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="WEBニュース" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">WEBニュース/記事</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="口コミ" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">友人/家族からの口コミ</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl bg-gray-50/30 cursor-pointer hover:bg-white hover:border-blue-200 transition-all">
+                        <input type="radio" name="q13" value="その他" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-700">その他</span>
+                    </label>
+                </div>
+                <p class="error-msg">きっかけを1つ選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q14. この作品を観ようと決めた、一番の理由は何ですか？<span class="req-mark">＊</span></label>
+                <select name="q14" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" required>
+                    <option value="">決定理由を選択</option>
+                    <option value="好きな監督・俳優が出演">好きな監督・俳優が出演</option>
+                    <option value="予告編が面白そうだった">予告編が面白そうだった</option>
+                    <option value="あらすじ・ストーリーに惹かれた">あらすじ・ストーリーに惹かれた</option>
+                    <option value="原作のファン">原作のファン</option>
+                    <option value="家族や友人から勧められた">家族や友人から勧められた</option>
+                    <option value="世間の評判・レビューが高かった">世間の評判・レビューが高かった</option>
+                    <option value="特別な上映形式">特別な上映形式（IMAX等）</option>
+                    <option value="その他">その他</option>
+                </select>
+                <p class="error-msg">一番の理由を選択してください</p>
+            </div>
+        </div>
+
+        <!-- Step 4: 劇場体験について (Q15-Q21) -->
+        <div class="step" data-step="4" data-label="劇場体験について">
+            <h2 class="text-xl font-bold mb-8 text-gray-800">映画館の体験について</h2>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 leading-relaxed text-gray-700 question-label">Q15. この映画館を家族や友人にどの程度おすすめしたいですか？（0〜10点）<span class="req-mark">＊</span></label>
+                <div class="rating-grid" id="q15-container"></div>
+                <div class="flex justify-between text-[10px] text-gray-400 mt-3 font-bold uppercase tracking-wider">
+                    <span>0: 全く勧めない</span>
+                    <span>10: 強く勧める</span>
+                </div>
+                <p class="error-msg">点数を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q16. 本日、この映画館を選んだ一番の理由は何ですか？<span class="req-mark">＊</span></label>
+                <select name="q16" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30" required>
+                    <option value="">選んだ理由を選択</option>
+                    <option value="立地が便利だから">立地が便利だから</option>
+                    <option value="上映時間が都合よかったから">上映時間が都合よかったから</option>
+                    <option value="使いたい会員サービスがあったから">使いたい会員サービスがあったから</option>
+                    <option value="特別な設備で観たかったから">特別な設備で観たかったから</option>
+                    <option value="いつも利用しているから">いつも利用しているから</option>
+                    <option value="その他">その他</option>
+                </select>
+                <p class="error-msg">理由を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-5 text-gray-700 leading-relaxed question-label">Q17. 今回の劇場体験について、以下の項目ごとの満足度を教えてください。<span class="req-mark">＊</span></label>
+                <div id="matrix-container" class="bg-gray-50/30 rounded-3xl border border-gray-100 p-6 shadow-sm"></div>
+                <p class="error-msg">すべての項目にチェックを入れてください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-5 text-gray-700 question-label">Q18. 本日、映画館でフードやドリンクを購入しましたか？<span class="req-mark">＊</span></label>
+                <div class="flex gap-12">
+                    <label class="flex items-center group cursor-pointer">
+                        <input type="radio" name="q18" value="購入した" class="w-5 h-5 text-blue-600" required><span class="ml-3 text-sm font-medium text-gray-600 group-hover:text-blue-600">購入した</span>
+                    </label>
+                    <label class="flex items-center group cursor-pointer">
+                        <input type="radio" name="q18" value="購入しなかった" class="w-5 h-5 text-blue-600"><span class="ml-3 text-sm font-medium text-gray-600 group-hover:text-blue-600">購入しなかった</span>
+                    </label>
+                </div>
+                <p class="error-msg">項目を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 leading-relaxed question-label">Q19. あなたが映画館で映画を鑑賞する際に最も魅力に感じることは何ですか？<span class="req-mark">＊</span></label>
+                <select name="q19" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none" required>
+                    <option value="">魅力を選択</option>
+                    <option value="大画面と音響による没入感">大画面と音響による没入感</option>
+                    <option value="作品に集中できる環境">作品に集中できる環境</option>
+                    <option value="他の観客との一体感">他の観客との一体感</option>
+                    <option value="外出するというイベント感">外出するというイベント感</option>
+                    <option value="その他">その他</option>
+                </select>
+                <p class="error-msg">項目を選択してください</p>
+            </div>
+
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 leading-relaxed question-label">Q20. 公開待機中の話題作の中で、もっとも「鑑賞したい」と思う作品を教えてください。<span class="req-mark">＊</span></label>
+                <select name="q20" id="q20_select" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 mb-4 appearance-none cursor-pointer" onchange="toggleQ20OtherSelect(this)" required>
+                    <option value="">作品を選択してください</option>
+                    <option value="期待作A">期待の新作 A (公開日: 202X.XX.XX)</option>
+                    <option value="期待作B">期待の新作 B (公開日: 202X.XX.XX)</option>
+                    <option value="期待作C">期待の新作 C (公開日: 202X.XX.XX)</option>
+                    <option value="期待作D">期待の新作 D (公開日: 202X.XX.XX)</option>
+                    <option value="期待作E">期待の新作 E (公開日: 202X.XX.XX)</option>
+                    <option value="期待作F">期待の新作 F (公開日: 202X.XX.XX)</option>
+                    <option value="期待作G">期待の新作 G (公開日: 202X.XX.XX)</option>
+                    <option value="期待作H">期待の新作 H (公開日: 202X.XX.XX)</option>
+                    <option value="期待作I">期待の新作 I (公開日: 202X.XX.XX)</option>
+                    <option value="期待作J">期待の新作 J (公開日: 202X.XX.XX)</option>
+                    <option value="その他">その他（自由入力）</option>
+                </select>
+                <div id="q20_other_container" class="hidden animate-in">
+                    <input type="text" name="q20_other_text" id="q20_other_input" class="w-full p-4 border-2 border-gray-100 rounded-xl text-sm outline-none focus:border-blue-500 transition-all" placeholder="作品名を入力してください">
+                </div>
+                <p class="error-msg">作品を選択してください</p>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-sm font-bold mb-3 text-gray-700">Q21. 映画館へのご希望やご意見がございましたら、お聞かせください。（任意）</label>
+                <textarea name="q21" rows="3" class="w-full p-4 border border-gray-200 rounded-xl text-sm outline-none bg-gray-50/30 focus:border-blue-500 transition-all" placeholder="自由にご記入ください"></textarea>
+            </div>
+        </div>
+
+        <!-- Step 5: あなた自身について (Q22-Q24) -->
+        <div class="step" data-step="5" data-label="あなた自身について">
+            <h2 class="text-xl font-bold mb-8 text-gray-800">最後にご自身のことについて</h2>
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q22. あなたの年代をお聞かせください。<span class="req-mark">＊</span></label>
+                <div class="radio-grid">
+                    <input type="radio" name="q22" id="age_0" value="15歳未満" class="hidden" required><label for="age_0" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">15歳未満</label>
+                    <input type="radio" name="q22" id="age_1" value="15〜19歳" class="hidden"><label for="age_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">15〜19歳</label>
+                    <input type="radio" name="q22" id="age_2" value="20代" class="hidden"><label for="age_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">20代</label>
+                    <input type="radio" name="q22" id="age_3" value="30代" class="hidden"><label for="age_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">30代</label>
+                    <input type="radio" name="q22" id="age_4" value="40代" class="hidden"><label for="age_4" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">40代</label>
+                    <input type="radio" name="q22" id="age_5" value="50代" class="hidden"><label for="age_5" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">50代</label>
+                    <input type="radio" name="q22" id="age_6" value="60代" class="hidden"><label for="age_6" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">60代</label>
+                    <input type="radio" name="q22" id="age_7" value="70代以上" class="hidden"><label for="age_7" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all text-xs">70代以上/回答しない</label>
+                </div>
+                <p class="error-msg">項目を選択してください</p>
+            </div>
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q23. あなたが映画館で映画を鑑賞する頻度（年間）を教えてください。<span class="req-mark">＊</span></label>
+                <div class="radio-grid">
+                    <input type="radio" name="q23" id="freq_1" value="年に1〜4回" class="hidden" required><label for="freq_1" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">年に1〜4回</label>
+                    <input type="radio" name="q23" id="freq_2" value="年に5〜11回" class="hidden"><label for="freq_2" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">年に5〜11回</label>
+                    <input type="radio" name="q23" id="freq_3" value="年に12回以上" class="hidden"><label for="freq_3" class="border border-gray-200 p-4 rounded-xl text-center cursor-pointer text-sm font-semibold bg-white transition-all">年に12回以上</label>
+                </div>
+                <p class="error-msg">項目を選択してください</p>
+            </div>
+            <div class="mb-10 question-block" data-required="true">
+                <label class="block text-sm font-bold mb-3 text-gray-700 leading-relaxed question-label">Q24. （今回を除いて）あなたが『映画館で』映画を鑑賞したのは、いつ頃ですか？<span class="req-mark">＊</span></label>
+                <select name="q24" class="w-full p-4 border border-gray-200 rounded-xl bg-gray-50/30 outline-none" required>
+                    <option value="">時期を選択してください</option>
+                    <option value="1週間以内">1週間以内</option>
+                    <option value="1ヶ月以内">1ヶ月以内</option>
+                    <option value="3ヶ月以内">3ヶ月以内</option>
+                    <option value="半年以内">半年以内</option>
+                    <option value="1年以内">1年以内</option>
+                    <option value="1年以上〜3年未満">1年以上〜3年未満</option>
+                    <option value="3年以上前">3年以上前</option>
+                    <option value="今回が初めて">今回が初めて</option>
+                    <option value="覚えていない">覚えていない</option>
+                </select>
+                <p class="error-msg">時期を選択してください</p>
+            </div>
+        </div>
+
+        <!-- Step 6: 特典応募 (オプトイン全文) -->
+        <div class="step" data-step="6" data-label="プレゼント応募">
+            <h2 class="text-xl font-bold mb-8 text-gray-800">ご回答ありがとうございます</h2>
+            <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100 shadow-sm mb-10 text-center">
+                <p class="font-extrabold text-blue-700 mb-4 text-xl tracking-tight">抽選で映画鑑賞券をプレゼント！</p>
+                <p class="text-sm text-gray-500 mb-8 leading-relaxed">アンケートにご協力いただいた感謝として、<br>抽選で素敵なプレゼントをご用意しています。応募されますか？</p>
+
+                <div class="flex gap-4 mb-8">
+                    <input type="radio" name="present_opt" id="p_yes" value="yes" class="hidden" onchange="toggleEmail(true)">
+                    <label for="p_yes" class="flex-1 bg-white border-2 border-blue-600 text-blue-600 px-6 py-4 rounded-2xl font-bold text-center cursor-pointer hover:bg-blue-600 hover:text-white transition-all shadow-sm">応募する</label>
+
+                    <input type="radio" name="present_opt" id="p_no" value="no" class="hidden" onchange="toggleEmail(false)">
+                    <label for="p_no" class="flex-1 bg-gray-100 text-gray-400 px-6 py-4 rounded-2xl font-bold text-center cursor-pointer hover:bg-gray-200 transition-all text-sm">しない</label>
+                </div>
+
+                <div id="emailSection" class="hidden mt-8 animate-in bg-white p-6 rounded-2xl border border-blue-50 text-left shadow-lg">
+                    <div class="mb-6 text-[10px] leading-relaxed text-gray-600 bg-gray-50 p-5 rounded-xl border border-gray-200 overflow-y-auto max-h-64 shadow-inner">
+                        <p class="font-bold mb-3 text-gray-800 border-b pb-1 text-sm">【個人情報の取り扱いについて】</p>
+                        <p class="mb-3 leading-relaxed">本アンケートは、主催者「映画館に行こう実行委員会」より委託された株式会社ガイエ（以下ガイエ）が運営しています。 ご入力いただいたメールアドレスおよびご回答内容は、ガイエが下記の目的のために利用し、当社のプライバシーポリシーに基づき責任をもって厳重に管理いたします。</p>
+
+                        <p class="font-bold mt-4 text-gray-800">１．利用目的</p>
+                        <ul class="list-disc ml-5 space-y-2 mt-2">
+                            <li><strong>映画に関する情報提供</strong>：ガイエからの、新作映画情報、関連ニュース、お得なキャンペーン等のご案内メールの配信、および映画に関連する新しいサービスのご案内をお送りする場合があります。</li>
+                            <li><strong>パーソナライズされたご案内の配信</strong>：映画配給会社等のパートナー企業からの委託を受け、ガイエが送信する、お客様のアンケート回答内容（好きなジャンル、鑑賞した作品の評価など）や属性情報（年代・性別など）に応じた、新作映画情報、限定クーポン、特別試写会等のご案内メールの配信</li>
+                            <li><strong>本アンケートに関連した広告表示</strong>：ご回答内容や属性情報を分析し、本アンケートの回答完了画面において、お客様の興味・関心に合わせた広告（新作映画情報、関連サービス等）を表示するため</li>
+                            <li><strong>アンケート・調査へのご協力依頼</strong>：本アンケートに関する追加のご質問や、特定のテーマに関するインタビューへのご協力依頼</li>
+                            <li><strong>属性情報と関連付けた分析</strong>：ご登録いただいたメールアドレスと今回のアンケートご回答内容を関連付け、ターゲティング広告配信のためのセグメント作成、および、よりパーソナライズされた情報をお届けするための分析に利用します。</li>
+                        </ul>
+
+                        <p class="font-bold mt-6 text-gray-800">２．個人情報の第三者提供について</p>
+                        <p class="mt-1 leading-relaxed">ご本人の同意なく、メールアドレスそのものを「映画館に行こう実行委員会」の参加企業や、映画配給会社等の第三者に開示または提供することは一切ございません。（※当社がパートナー企業に代わって、当社からお客様にメールを送信する形式をとります）</p>
+
+                        <p class="font-bold mt-6 text-gray-800">３．登録の解除について</p>
+                        <p class="mt-1 leading-relaxed">配信されるご案内メールは、メール内に記載のURLから、いつでも簡単に配信停止（オプトアウト）の手続きが可能です。</p>
+
+                        <p class="font-bold mt-6 text-gray-800">４．プライバシーポリシー</p>
+                        <p class="mt-1 leading-relaxed">当社の個人情報の取り扱いに関する詳細については、下記リンクより当社のプライバシーポリシーをご確認ください。<br>
+                        <a href="https://gaie.jp/privacy/" target="_blank" class="text-blue-600 underline font-bold mt-2 inline-block">株式会社ガイエ プライバシーポリシー</a></p>
+                    </div>
+
+                    <label class="block text-xs font-bold text-gray-600 mb-3 ml-1">お届け先メールアドレス</label>
+                    <input type="email" name="email" id="emailInput" class="w-full p-4 border border-gray-200 rounded-xl focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all" placeholder="name@example.com">
+                    <p class="text-[10px] text-gray-400 mt-3 italic font-medium leading-tight">※上記「個人情報の取り扱いについて」の内容に同意のうえ、メールアドレスを入力してください。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div id="navButtons" class="mt-16 flex justify-between gap-6">
+            <button type="button" id="prevBtn" onclick="changeStep(-1)" class="bg-gray-50 text-gray-500 px-10 py-4 rounded-2xl font-bold transition-all hover:bg-gray-100 hover:text-gray-700 hidden">戻る</button>
+            <button type="button" id="nextBtn" onclick="changeStep(1)" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-extrabold ml-auto transition-all hover:bg-blue-700 shadow-lg shadow-blue-100 hover:-translate-y-0.5 active:translate-y-0">次へ進む</button>
+            <button type="submit" id="submitBtn" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-extrabold ml-auto transition-all hover:bg-blue-700 shadow-lg shadow-blue-100 hidden hover:-translate-y-0.5">アンケートを送信する</button>
+        </div>
+    </form>
+
+    <!-- Thanks Page -->
+    <div id="thanksPage" class="hidden text-center py-24 animate-in">
+        <div class="mb-10 inline-flex items-center justify-center w-24 h-24 bg-blue-50 text-blue-600 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <h2 class="text-4xl font-black mb-6 tracking-tight text-gray-900">Thank you!</h2>
+        <p class="text-gray-500 mb-12 leading-relaxed font-medium">アンケートへのご協力、誠にありがとうございました。<br>お客様のご意見を大切に活用させていただきます。</p>
+
+        <div id="presentNote" class="hidden bg-blue-600 text-white p-8 rounded-3xl max-w-sm mx-auto mb-12 shadow-2xl shadow-blue-200">
+            <p class="font-black mb-2 text-xl">応募完了</p>
+            <p class="text-blue-100 text-xs leading-relaxed opacity-90 text-left">厳正なる抽選のうえ、当選された方にはご登録いただいたアドレスへご連絡いたします。今後の新作映画情報のご案内も楽しみにお待ちください。</p>
+        </div>
+
+        <button onclick="location.reload()" class="inline-block bg-gray-100 text-gray-700 px-12 py-4 rounded-full font-bold hover:bg-gray-200 transition-all text-xs uppercase tracking-widest">
+            Back to Top
+        </button>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 6;
+
+    window.onload = function() {
+        initRatings('q5-container', 'q5');
+        initRatings('q15-container', 'q15');
+        initMatrix();
+    };
+
+    function initRatings(containerId, name) {
+        const container = document.getElementById(containerId);
+        let html = '';
+        for (let i = 0; i <= 10; i++) {
+            html += `
+                <div class="contents">
+                    <input type="radio" name="${name}" id="${name}_${i}" value="${i}" class="hidden" required>
+                    <label for="${name}_${i}" class="border border-gray-200 py-3 rounded-xl text-center text-xs cursor-pointer hover:border-blue-300 transition-all font-bold bg-white">${i}</label>
+                </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function initMatrix() {
+        const items = ["アクセス・立地", "チケット購入のスムーズさ", "ロビー・売店の雰囲気・質", "トイレや館内の清潔さ", "スクリーン・音響の設備", "スタッフの接客・案内"];
+        const levels = [
+            {v: 1, t: "期待を大きく<br>下回る"}, {v: 2, t: "期待を少し<br>下回る"}, {v: 3, t: "期待通り"},
+            {v: 4, t: "期待を少し<br>上回る"}, {v: 5, t: "期待を大きく<br>上回る"}
+        ];
+
+        const container = document.getElementById('matrix-container');
+        items.forEach((item, idx) => {
+            let rowHtml = `<div class="matrix-row"><p class="font-bold mb-5 text-sm text-gray-800">${idx+1}. ${item}</p><div class="matrix-options">`;
+            levels.forEach(lvl => {
+                rowHtml += `
+                    <div class="flex-1 flex flex-col items-center">
+                        <input type="radio" name="matrix_${idx}" id="m_${idx}_${lvl.v}" value="${lvl.v}" class="hidden" required>
+                        <label for="m_${idx}_${lvl.v}" class="w-full max-w-[48px] border border-gray-200 py-3 rounded-xl text-center cursor-pointer hover:border-blue-300 transition-all text-xs bg-white">●</label>
+                        <span class="matrix-label">${lvl.t}</span>
+                    </div>`;
+            });
+            rowHtml += `</div></div>`;
+            container.innerHTML += rowHtml;
+        });
+    }
+
+    function toggleRadio(radio) {
+        if (radio.dataset.wasChecked === 'true') {
+            radio.checked = false;
+            radio.dataset.wasChecked = 'false';
+        } else {
+            const name = radio.getAttribute('name');
+            document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
+                el.dataset.wasChecked = 'false';
+            });
+            radio.dataset.wasChecked = 'true';
+        }
+    }
+
+    function changeStep(n) {
+        if (n > 0 && !validateStep(currentStep)) return;
+
+        const steps = document.querySelectorAll('.step');
+        steps[currentStep - 1].classList.remove('active');
+        currentStep += n;
+        steps[currentStep - 1].classList.add('active');
+        updateNavigation();
+        window.scrollTo(0, 0);
+    }
+
+    function updateNavigation() {
+        document.getElementById('prevBtn').classList.toggle('hidden', currentStep === 1);
+        document.getElementById('nextBtn').classList.toggle('hidden', currentStep === totalSteps);
+        document.getElementById('submitBtn').classList.toggle('hidden', currentStep !== totalSteps);
+
+        const progress = (currentStep / totalSteps * 100);
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('stepIndicator').innerHTML = `${currentStep.toString().padStart(2, '0')} <span class="text-sm font-normal text-gray-200">/ 0${totalSteps}</span>`;
+
+        const activeStep = document.querySelector('.step.active');
+        document.getElementById('categoryLabel').innerText = activeStep.dataset.label;
+    }
+
+    function validateStep(step) {
+        const el = document.querySelector(`.step[data-step="${step}"]`);
+        const blocks = el.querySelectorAll('.question-block');
+        let isValid = true;
+        let firstInvalid = null;
+
+        blocks.forEach(block => {
+            const inputs = block.querySelectorAll('input, select');
+            if (inputs.length === 0) return;
+
+            let answered = false;
+
+            // 字幕吹替は任意
+            if (inputs[0].name === 'q2_voice') {
+                answered = true;
+            } else if (inputs[0].tagName === 'SELECT') {
+                answered = inputs[0].value !== "";
+            } else if (inputs[0].type === 'radio' || inputs[0].type === 'checkbox') {
+                const name = inputs[0].name;
+                answered = el.querySelector(`input[name="${name}"]:checked`) !== null;
+            }
+
+            const matrixRows = block.querySelectorAll('.matrix-row');
+            if (matrixRows.length > 0) {
+                let matrixValid = true;
+                const totalRows = 6;
+                for (let i = 0; i < totalRows; i++) {
+                    if (!el.querySelector(`input[name="matrix_${i}"]:checked`)) matrixValid = false;
+                }
+                answered = matrixValid;
+            }
+
+            const errorMsg = block.querySelector('.error-msg');
+
+            if (!answered) {
+                isValid = false;
+                if (!firstInvalid) firstInvalid = block;
+                if (errorMsg) errorMsg.style.display = 'block';
+                // 控えめなエラー表示：クラスの付け替えのみ
+                block.classList.add('has-error');
+            } else {
+                if (errorMsg) errorMsg.style.display = 'none';
+                block.classList.remove('has-error');
+            }
+        });
+
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return isValid;
+    }
+
+    function toggleEmail(show) {
+        const section = document.getElementById('emailSection');
+        const input = document.getElementById('emailInput');
+        if (show) {
+            section.classList.remove('hidden');
+            input.setAttribute('required', 'true');
+            input.focus();
+        } else {
+            section.classList.add('hidden');
+            input.removeAttribute('required');
+            input.value = '';
+        }
+    }
+
+    function toggleQ20OtherSelect(select) {
+        const container = document.getElementById('q20_other_container');
+        const input = document.getElementById('q20_other_input');
+        if (select.value === 'その他') {
+            container.classList.remove('hidden');
+            input.setAttribute('required', 'true');
+            input.focus();
+        } else {
+            container.classList.add('hidden');
+            input.removeAttribute('required');
+            input.value = '';
+        }
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        if (!validateStep(currentStep)) return false;
+
+        document.getElementById('surveyForm').classList.add('hidden');
+        document.getElementById('headerArea').classList.add('hidden');
+        document.getElementById('thanksPage').classList.remove('hidden');
+
+        const presentOpt = document.querySelector('input[name="present_opt"]:checked');
+        if (presentOpt && presentOpt.value === 'yes') {
+            document.getElementById('presentNote').classList.remove('hidden');
+        }
+
+        window.scrollTo(0, 0);
+        return false;
+    }
+</script>
+
+</body>
+</html>
