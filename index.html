@@ -27,6 +27,7 @@
         .matrix-options { display: flex; justify-content: space-between; gap: 6px; }
         .matrix-label { font-size: 0.6rem; text-align: center; margin-top: 8px; min-height: 2.5em; line-height: 1.2; color: #9ca3af; }
 
+        /* エラー表示 */
         .question-block.has-error label.question-label { color: #dc2626; }
         .question-block.has-error select, .question-block.has-error .radio-container { border-color: #fca5a5; }
         .error-msg { color: #dc2626; font-size: 0.75rem; margin-top: 8px; display: none; font-weight: 600; }
@@ -35,7 +36,7 @@
 
         /* 送信中のローディング表示 */
         #submitBtn:disabled { background-color: #93c5fd; cursor: not-allowed; }
-        .loading-spinner { display: none; width: 1.2rem; height: 1.2rem; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 8px; }
+        .loading-spinner { display: none; width: 1.2rem; height: 1.2rem; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 8px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -144,7 +145,7 @@
             </div>
         </div>
 
-        <!-- Step 2: 来場の背景 (Q7-Q12) -->
+        <!-- Step 2: 来場の背景 -->
         <div class="step" data-step="2" data-label="来場の背景">
             <h2 class="text-xl font-bold mb-8 text-gray-800">本日のご来場について教えてください</h2>
 
@@ -289,7 +290,7 @@
             <h2 class="text-xl font-bold mb-8 text-gray-800">映画館の体験について</h2>
 
             <div class="mb-10 question-block">
-                <label class="block text-sm font-bold mb-3 text-gray-700 question-label">Q15. この映画館を家族や友人にどの程度おすすめしたいですか？（0〜10点）<span class="req-mark">＊</span></label>
+                <label class="block text-sm font-bold mb-3 text-gray-700 leading-relaxed text-gray-700 question-label">Q15. この映画館を家族や友人にどの程度おすすめしたいですか？（0〜10点）<span class="req-mark">＊</span></label>
                 <div class="rating-grid" id="q15-container"></div>
                 <div class="flex justify-between text-[10px] text-gray-400 mt-3 font-bold uppercase tracking-wider">
                     <span>0: 全く勧めない</span>
@@ -403,7 +404,7 @@
             </div>
         </div>
 
-        <!-- Step 6: 特典応募 -->
+        <!-- Step 6: 特典応募 (オプトイン全文) -->
         <div class="step" data-step="6" data-label="プレゼント応募">
             <h2 class="text-xl font-bold mb-8 text-gray-800">ご回答ありがとうございます</h2>
             <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100 shadow-sm mb-10 text-center">
@@ -421,30 +422,31 @@
                 <div id="emailSection" class="hidden mt-8 animate-in bg-white p-6 rounded-2xl border border-blue-50 text-left shadow-lg">
                     <div class="mb-6 text-[10px] leading-relaxed text-gray-600 bg-gray-50 p-5 rounded-xl border border-gray-200 overflow-y-auto max-h-64 shadow-inner">
                         <p class="font-bold mb-3 text-gray-800 border-b pb-1 text-sm">【個人情報の取り扱いについて】</p>
-                        <p class="mb-3 leading-relaxed">本アンケートは、主催者「映画館に行こう実行委員会」より委託された株式会社ガイエ（以下ガイエ）が運営しています。 ご入力いただいたメールアドレスおよびご回答内容は、ガイエが下記の目的のために利用し、当社のプライバシーポリシーに基づき責任をもって厳重に管理いたします。</p>
+                        <p class="mb-3 leading-relaxed text-gray-700">本アンケートは、主催者「映画館に行こう実行委員会」より委託された株式会社ガイエ（以下ガイエ）が運営しています。 ご入力いただいたメールアドレスおよびご回答内容は、ガイエが下記の目的のために利用し、当社のプライバシーポリシーに基づき責任をもって厳重に管理いたします。</p>
 
                         <p class="font-bold mt-4 text-gray-800">１．利用目的</p>
-                        <ul class="list-disc ml-5 space-y-2 mt-2">
-                            <li><strong>映画に関する情報提供</strong>：ガイエからの、新作映画情報、関連ニュース、お得なキャンペーン等のご案内メールの配信、および映画に関連する新しいサービスのご案内をお送りする場合があります。</li>
-                            <li><strong>パーソナライズされたご案内の配信</strong>：映画配給会社等のパートナー企業からの委託を受け、ガイエが送信する、お客様のアンケート回答内容に応じた、新作映画情報、限定クーポン、特別試写会等のご案内メールの配信</li>
-                            <li><strong>本アンケートに関連した広告表示</strong>：ご回答内容や属性情報を分析し、お客様の興味・関心に合わせた広告を表示するため</li>
-                            <li><strong>アンケート・調査へのご協力依頼</strong>：本アンケートに関する追加のご質問や、特定のテーマに関するインタビューへのご協力依頼</li>
-                            <li><strong>属性情報と関連付けた分析</strong>：ご登録いただいたメールアドレスと今回のアンケートご回答内容を関連付け、よりパーソナライズされた情報をお届けするための分析に利用します。</li>
+                        <ul class="list-disc ml-5 space-y-2 mt-2 text-gray-600">
+                            <li><strong>映画に関する情報提供</strong>：ガイエからの新作映画情報、お得なキャンペーン等の案内メール配信。</li>
+                            <li><strong>パーソナライズされたご案内の配信</strong>：お客様の回答内容に応じた限定クーポンや試写会等の案内配信。</li>
+                            <li><strong>本アンケートに関連した広告表示</strong>：属性情報を分析し、興味・関心に合わせた広告を表示するため。</li>
+                            <li><strong>アンケート・調査へのご協力依頼</strong>：追加の質問やインタビューへのご協力依頼。</li>
+                            <li><strong>属性情報と関連付けた分析</strong>：ターゲティング広告配信のためのセグメント作成や分析。</li>
                         </ul>
 
                         <p class="font-bold mt-6 text-gray-800">２．個人情報の第三者提供について</p>
-                        <p class="mt-1 leading-relaxed">ご本人の同意なく、メールアドレスそのものを第三者に開示または提供することは一切ございません。</p>
+                        <p class="mt-1 leading-relaxed text-gray-600">ご本人の同意なく、メールアドレスそのものを第三者に開示または提供することはございません。</p>
 
                         <p class="font-bold mt-6 text-gray-800">３．登録の解除について</p>
-                        <p class="mt-1 leading-relaxed">配信されるご案内メールは、メール内に記載のURLから、いつでも簡単に配信停止（オプトアウト）の手続きが可能です。</p>
+                        <p class="mt-1 leading-relaxed text-gray-600">配信される案内メールは、URLからいつでも配信停止（オプトアウト）が可能です。</p>
 
                         <p class="font-bold mt-6 text-gray-800">４．プライバシーポリシー</p>
-                        <p class="mt-1 leading-relaxed">詳細は下記リンクよりご確認ください。<br>
+                        <p class="mt-1 leading-relaxed text-gray-600">詳細は下記リンクよりご確認ください。<br>
                         <a href="https://gaie.jp/privacy/" target="_blank" class="text-blue-600 underline font-bold mt-2 inline-block">株式会社ガイエ プライバシーポリシー</a></p>
                     </div>
 
                     <label class="block text-xs font-bold text-gray-600 mb-3 ml-1">お届け先メールアドレス</label>
                     <input type="email" name="メールアドレス" id="emailInput" class="w-full p-4 border border-gray-200 rounded-xl focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all" placeholder="name@example.com">
+                    <p class="text-[10px] text-gray-400 mt-3 italic font-medium leading-tight">※上記内容に同意のうえ、入力してください。</p>
                 </div>
             </div>
         </div>
@@ -454,7 +456,7 @@
             <button type="button" id="prevBtn" onclick="changeStep(-1)" class="bg-gray-50 text-gray-500 px-10 py-4 rounded-2xl font-bold transition-all hover:bg-gray-100 hidden">戻る</button>
             <button type="button" id="nextBtn" onclick="changeStep(1)" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-extrabold ml-auto transition-all hover:bg-blue-700 shadow-lg shadow-blue-100">次へ進む</button>
             <button type="submit" id="submitBtn" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-extrabold ml-auto transition-all hover:bg-blue-700 shadow-lg shadow-blue-100 hidden">
-                <span>アンケートを送信する</span>
+                <span id="btnText">アンケートを送信する</span>
                 <span class="loading-spinner" id="spinner"></span>
             </button>
         </div>
@@ -478,18 +480,18 @@
 </div>
 
 <script>
-    // --- 重要：ここにデプロイしたGoogle Apps ScriptのURLを貼り付けてください ---
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxYmy99BvIQWAG8QuWO3vE2blKVkHn-SG_Gk4ex-TfZ5xGH6kohulJFXs5J-bIjiS_ngw/exec';
+    // --- 【必須】ここにデプロイしたウェブアプリのURLを貼り付けてください ---
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzLBuHcdkjkP1K6L6OAxp_GcJ1QMmBZjTHjtYFcIb3nWbUPT5NZdzucQjKcGq0y2As4Ow/exec';
 
     let currentStep = 1;
     const totalSteps = 6;
+    const matrixItems = ["アクセス・立地", "チケット購入のスムーズさ", "ロビー・売店の雰囲気・質", "トイレや館内の清潔さ", "スクリーン・音響の設備", "スタッフの接客・案内"];
 
     window.onload = function() {
         initRatings('q5-container', '点数_作品の推奨度');
         initRatings('q15-container', '点数_劇場の推奨度');
         initMatrix();
 
-        // フォームの送信処理
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             handleSubmit();
@@ -510,17 +512,16 @@
     }
 
     function initMatrix() {
-        const items = ["アクセス・立地", "チケット購入", "ロビー・売店", "館内の清潔さ", "スクリーン・音響", "スタッフの対応"];
-        const levels = [{v: 1, t: "不満"}, {v: 2, t: "やや不満"}, {v: 3, t: "普通"}, {v: 4, t: "満足"}, {v: 5, t: "大変満足"}];
+        const levels = [{v: 1, t: "期待を大きく下回る"}, {v: 2, t: "期待を少し下回る"}, {v: 3, t: "期待通り"}, {v: 4, t: "期待を少し上回る"}, {v: 5, t: "期待を大きく上回る"}];
         const container = document.getElementById('matrix-container');
-        items.forEach((item, idx) => {
+        matrixItems.forEach((item, idx) => {
             let rowHtml = `<div class="matrix-row"><p class="font-bold mb-5 text-sm text-gray-800">${idx+1}. ${item}</p><div class="matrix-options">`;
             levels.forEach(lvl => {
                 rowHtml += `
                     <div class="flex-1 flex flex-col items-center">
                         <input type="radio" name="満足度_${item}" id="m_${idx}_${lvl.v}" value="${lvl.t}" class="hidden" required>
                         <label for="m_${idx}_${lvl.v}" class="w-full max-w-[48px] border border-gray-200 py-3 rounded-xl text-center cursor-pointer hover:border-blue-300 transition-all text-xs bg-white">●</label>
-                        <span class="matrix-label">${lvl.t}</span>
+                        <span class="matrix-label">${lvl.t.replace('期待を', '期待<br>').replace('回る', '回る')}</span>
                     </div>`;
             });
             rowHtml += `</div></div>`;
@@ -534,9 +535,7 @@
             radio.dataset.wasChecked = 'false';
         } else {
             const name = radio.getAttribute('name');
-            document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
-                el.dataset.wasChecked = 'false';
-            });
+            document.querySelectorAll(`input[name="${name}"]`).forEach(el => { el.dataset.wasChecked = 'false'; });
             radio.dataset.wasChecked = 'true';
         }
     }
@@ -573,7 +572,7 @@
             let answered = false;
 
             if (inputs[0].name === '音声形式') {
-                answered = true; // 任意項目
+                answered = true;
             } else if (inputs[0].tagName === 'SELECT') {
                 answered = inputs[0].value !== "";
             } else {
@@ -584,20 +583,20 @@
             const matrixRows = block.querySelectorAll('.matrix-row');
             if (matrixRows.length > 0) {
                 let matrixValid = true;
-                const items = ["アクセス・立地", "チケット購入", "ロビー・売店", "館内の清潔さ", "スクリーン・音響", "スタッフの対応"];
-                items.forEach(item => {
+                matrixItems.forEach(item => {
                     if (!el.querySelector(`input[name="満足度_${item}"]:checked`)) matrixValid = false;
                 });
                 answered = matrixValid;
             }
 
+            const errorMsg = block.querySelector('.error-msg');
             if (!answered) {
                 isValid = false;
                 if (!firstInvalid) firstInvalid = block;
-                block.querySelector('.error-msg').style.display = 'block';
+                if (errorMsg) errorMsg.style.display = 'block';
                 block.classList.add('has-error');
             } else {
-                block.querySelector('.error-msg').style.display = 'none';
+                if (errorMsg) errorMsg.style.display = 'none';
                 block.classList.remove('has-error');
             }
         });
@@ -635,15 +634,27 @@
 
         const submitBtn = document.getElementById('submitBtn');
         const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+
         submitBtn.disabled = true;
         spinner.style.display = 'inline-block';
+        btnText.innerText = '送信中...';
 
-        const formData = new FormData(document.getElementById('surveyForm'));
+        // データの収集
+        const form = document.getElementById('surveyForm');
+        const formData = new FormData(form);
         const object = { "回答日時": new Date().toLocaleString("ja-JP") };
+
+        // 通常のフォームデータをオブジェクトに変換
         formData.forEach((value, key) => { object[key] = value });
 
+        // オプション: q20のその他入力をマージ
+        if (object['次回鑑賞期待作'] === 'その他' && object['次回期待作自由入力']) {
+            object['次回鑑賞期待作'] = 'その他：' + object['次回期待作自由入力'];
+        }
+
         try {
-            // GASへの送信（CORSエラー回避のため no-cors モード）
+            // GASへの送信
             await fetch(scriptUrl, {
                 method: "POST",
                 mode: "no-cors",
@@ -657,9 +668,11 @@
             document.getElementById('thanksPage').classList.remove('hidden');
             if (object['プレゼント応募'] === '希望する') document.getElementById('presentNote').classList.remove('hidden');
         } catch (error) {
-            alert('送信に失敗しました。時間をおいて再度お試しください。');
+            console.error("Submission Error:", error);
+            alert('通信に失敗しました。GASのURLが正しく設定されているか、またはネットワーク環境を確認してください。');
             submitBtn.disabled = false;
             spinner.style.display = 'none';
+            btnText.innerText = 'アンケートを送信する';
         }
         window.scrollTo(0, 0);
     }
