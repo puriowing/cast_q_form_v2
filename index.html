@@ -105,7 +105,7 @@
 
                 <div class="mb-10 question-block">
                     <label class="block text-sm font-bold mb-3 text-gray-700">Q2. ご覧になった上映フォーマットをお聞かせください。<span class="req-mark">＊</span></label>
-                    <div class="radio-grid">
+                    <div class="radio-grid mb-6">
                         <input type="radio" name="フォーマット" id="f1" value="通常上映" class="hidden" required><label for="f1" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">通常上映</label>
                         <input type="radio" name="フォーマット" id="f2" value="IMAX" class="hidden"><label for="f2" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">IMAX</label>
                         <input type="radio" name="フォーマット" id="f3" value="Dolby Cinema" class="hidden"><label for="f3" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">Dolby Cinema</label>
@@ -113,6 +113,15 @@
                         <input type="radio" name="フォーマット" id="f5" value="ULTRA 4DX" class="hidden"><label for="f5" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">ULTRA 4DX</label>
                         <input type="radio" name="フォーマット" id="f6" value="ScreenX" class="hidden"><label for="f6" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">ScreenX</label>
                         <input type="radio" name="フォーマット" id="f7" value="その他" class="hidden"><label for="f7" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">その他</label>
+                    </div>
+
+                    <!-- 字幕・吹替の選択肢 -->
+                    <div class="mt-6 pt-6 border-t border-gray-100">
+                        <p class="text-[10px] font-bold text-gray-400 mb-3 tracking-wider uppercase">（洋画を鑑賞の場合）</p>
+                        <div class="radio-grid">
+                            <input type="radio" name="音声形式" id="voice1" value="字幕" onclick="toggleRadio(this)" class="hidden"><label for="voice1" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">字幕</label>
+                            <input type="radio" name="音声形式" id="voice2" value="吹替" onclick="toggleRadio(this)" class="hidden"><label for="voice2" class="border border-gray-200 p-3 rounded-xl text-center text-xs font-bold cursor-pointer hover:bg-gray-50 bg-white">吹替</label>
+                        </div>
                     </div>
                 </div>
 
@@ -535,6 +544,20 @@
             }
         }
 
+        // Q2の字幕・吹替などの選択解除用
+        function toggleRadio(el) {
+            if (el.getAttribute('data-checked') === 'true') {
+                el.checked = false;
+                el.setAttribute('data-checked', 'false');
+            } else {
+                const name = el.getAttribute('name');
+                document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                    radio.setAttribute('data-checked', 'false');
+                });
+                el.setAttribute('data-checked', 'true');
+            }
+        }
+
         function toggleEmail(show) {
             const section = document.getElementById('emailSection');
             const input = document.getElementById('emailInput');
@@ -594,17 +617,23 @@
                 if (inputs.length === 0) return;
 
                 let answered = false;
-                const req = inputs[0].hasAttribute('required') || (inputs[0].type === 'radio' && inputs[0].required);
 
-                if (!req) {
+                // 字幕・吹替（音声形式）は必須チェックから除外（洋画のみのため）
+                if (inputs[0].name === '音声形式') {
                     answered = true;
-                } else if (inputs[0].type === 'radio') {
-                    const name = inputs[0].name;
-                    answered = el.querySelector(`input[name="${name}"]:checked`) !== null;
-                } else if (inputs[0].type === 'email' || inputs[0].type === 'text') {
-                    answered = inputs[0].value.trim() !== "";
-                } else if (inputs[0].tagName === 'TEXTAREA') {
-                    answered = true; // 任意項目
+                } else {
+                    const req = inputs[0].hasAttribute('required') || (inputs[0].type === 'radio' && inputs[0].required);
+
+                    if (!req) {
+                        answered = true;
+                    } else if (inputs[0].type === 'radio') {
+                        const name = inputs[0].name;
+                        answered = el.querySelector(`input[name="${name}"]:checked`) !== null;
+                    } else if (inputs[0].type === 'email' || inputs[0].type === 'text') {
+                        answered = inputs[0].value.trim() !== "";
+                    } else if (inputs[0].tagName === 'TEXTAREA') {
+                        answered = true; // 任意項目
+                    }
                 }
 
                 const matrixRows = block.querySelectorAll('.matrix-row');
